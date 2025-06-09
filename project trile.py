@@ -3,108 +3,86 @@ import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import plotly.graph_objects as go
-import base64
 
-# --- MUST BE FIRST: PAGE CONFIG ---
+# --- PAGE CONFIG ---
 st.set_page_config(page_title="Despatch KPI Dashboard", layout="wide")
 
-# --- BACKGROUND SETTING FUNCTION ---
-def set_background(png_file_path):
-    import base64
-    with open(png_file_path, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode()
-
-    st.markdown(
-        f"""
-        <style>
-        /* Set background image for main app */
-        .stApp {{
-            background-image: url("data:image/png;base64,{encoded_string}");
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }}
-
-        /* Main content area - black text */
-        .block-container {{
-            background-color: rgba(255, 255, 255, 0.85);
-            padding: 2rem;
-            border-radius: 10px;
+# --- CUSTOM STYLING: White background, dark text, white sidebar text ---
+st.markdown("""
+    <style>
+        /* MAIN APP BACKGROUND - white */
+        .stApp {
+            background-color: white !important;
             color: black !important;
-        }}
+        }
 
-        /* Black text for headings, paragraphs, metrics etc. in main content */
-        h1, h2, h3, h4, h5, h6,
-        .stMarkdown, .stText, .stMetric,
-        div[data-testid="stMetricValue"],
-        div[data-testid="stMetricLabel"],
-        span, p, label, section,
-        .css-10trblm, .css-1v0mbdj {{
+        /* SIDEBAR BACKGROUND and TEXT */
+        [data-testid="stSidebar"] {
+            background-color: rgba(0, 0, 0, 0.8);  /* dark sidebar */
+        }
+        [data-testid="stSidebar"] * {
+            color: white !important;  /* white text in sidebar */
+        }
+
+        /* OVERRIDE METRIC TEXT COLORS */
+        div[data-testid="metric-container"] {
             color: black !important;
-        }}
+        }
 
-        /* Sidebar (menu) text remains white */
-        .sidebar-content, .css-1d391kg, .css-1lcbmhc {{
-            color: white !important;
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
-# --- SET BACKGROUND LOGO ---
-set_background("C:/Users/TAPIWA/Pictures/bakers Inn logo.png")
+        /* Ensure headers and chart titles in main area are black */
+        h1, h2, h3, h4, h5, h6, p, span, div {
+            color: black !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
 # --- GOOGLE SHEETS AUTH ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name(
-    r"C:/Program Files/JetBrains/PyCharm Community Edition 2025.1/tapiwa-460415-0f7e852ffac1.json",
+    "/workspaces/despatch-kpi/tapiwa-460415-0f7e852ffac1.json",  # ✅ Update to your actual path
     scope
 )
 client = gspread.authorize(creds)
 spreadsheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1_kxrutaWP9HDHRp5BtYOZloKGSgkeEpm3L16FCctiMI")
 
 # --- LOAD DATA ---
-orders_ws = spreadsheet.worksheet("ORDERED")
-loadings_ws = spreadsheet.worksheet("LOADED")
-orders_df = pd.DataFrame(orders_ws.get_all_records())
-loadings_df = pd.DataFrame(loadings_ws.get_all_records())
+orders_df = pd.DataFrame(spreadsheet.worksheet("ORDERED").get_all_records())
+loadings_df = pd.DataFrame(spreadsheet.worksheet("LOADED").get_all_records())
 
 # --- CLEAN COLUMNS ---
 orders_df.columns = [col.strip().upper().replace(" ", "_") for col in orders_df.columns]
 loadings_df.columns = [col.strip().upper().replace(" ", "_") for col in loadings_df.columns]
 
-# --- DATE FORMAT ---
-orders_df["DATE"] = pd.to_datetime(orders_df["DATE"], errors="coerce")
-loadings_df["DATE"] = pd.to_datetime(loadings_df["DATE"], errors="coerce")
+# --- FIX DATE FORMAT ---
+orders_df["DATE"] = pd.to_datetime(orders_df["DATE"], format="%d-%b-%y", errors="coerce")
+loadings_df["DATE"] = pd.to_datetime(loadings_df["DATE"], format="%d-%b-%y", errors="coerce")
 
-# --- CONVERT MUNCHIE_COOKIES TO NUMERIC ---
-if "MUNCHIE_COOKIES" in orders_df.columns:
-    orders_df["MUNCHIE_COOKIES"] = pd.to_numeric(orders_df["MUNCHIE_COOKIES"], errors="coerce").fillna(0)
-if "MUNCHIE_COOKIES" in loadings_df.columns:
-    loadings_df["MUNCHIE_COOKIES"] = pd.to_numeric(loadings_df["MUNCHIE_COOKIES"], errors="coerce").fillna(0)
+# --- MUNCHIE NUMERIC ---
+orders_df["MUNCHIE_COOKIES"] = pd.to_numeric(orders_df.get("MUNCHIE_COOKIES", 0), errors="coerce").fillna(0)
+loadings_df["MUNCHIE_COOKIES"] = pd.to_numeric(loadings_df.get("MUNCHIE_COOKIES", 0), errors="coerce").fillna(0)
 
 # --- SIDEBAR FILTERS ---
 st.sidebar.title("Filters")
 with st.sidebar.expander("🔎 Advanced Filters", expanded=False):
     min_date = min(orders_df["DATE"].min(), loadings_df["DATE"].min())
     max_date = max(orders_df["DATE"].max(), loadings_df["DATE"].max())
-    date_range = st.date_input("Select Date Range", [min_date, max_date])
+    date_range = st.date_input("Select Date Range", [min_date.date(), max_date.date()])
 
-    all_routes = sorted(loadings_df["ROUTE"].unique())
+    all_routes = sorted(loadings_df["ROUTE"].dropna().unique())
     select_all = st.checkbox("✅ Select All Routes", value=True)
-    if select_all:
-        routes = st.multiselect("Select Routes", options=all_routes, default=all_routes)
-    else:
-        routes = st.multiselect("Select Routes", options=all_routes)
+    routes = st.multiselect("Select Routes", options=all_routes, default=all_routes if select_all else [])
 
 # --- APPLY FILTERS ---
-start_date, end_date = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])
+if len(date_range) == 2:
+    start_date, end_date = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])
+else:
+    st.error("Please select a valid date range.")
+    st.stop()
+
 orders_df = orders_df[(orders_df["DATE"] >= start_date) & (orders_df["DATE"] <= end_date) & (orders_df["ROUTE"].isin(routes))]
 loadings_df = loadings_df[(loadings_df["DATE"] >= start_date) & (loadings_df["DATE"] <= end_date) & (loadings_df["ROUTE"].isin(routes))]
 
-# --- KPI METRICS ---
+# --- KPI CALC ---
 loaf_columns = ["BI_WHITE", "BI_BROWN", "BI_WHOLE_WHEAT", "MR_CHINGWA", "MRS_CHINGWA", "DR_CHINGWA"]
 for col in loaf_columns:
     loadings_df[col] = pd.to_numeric(loadings_df[col], errors="coerce").fillna(0)
@@ -114,7 +92,7 @@ total_orders = orders_df["TOTAL_ORDERS"].sum()
 loading_compliance = (loadings_df["LOADING_COMPLIANCE_STATUS"] == "Green").mean() * 100
 departure_compliance = (loadings_df["DEPARTURE_COMPLIANCE_STATUS"] == "On-time").mean() * 100
 
-# --- SIDEBAR MENU ---
+# --- KPI MENU ---
 selected_kpi = st.sidebar.selectbox("📊 Select KPI to Explore", [
     "Summary View",
     "Loaves Loaded",
@@ -123,7 +101,7 @@ selected_kpi = st.sidebar.selectbox("📊 Select KPI to Explore", [
     "Munchie Cookies Analysis"
 ])
 
-# --- DASHBOARD OUTPUT ---
+# --- MAIN DASHBOARD ---
 if selected_kpi == "Summary View":
     st.title("📦 Bakers Inn - Despatch KPI Dashboard")
     col1, col2, col3, col4 = st.columns(4)
@@ -182,7 +160,6 @@ elif selected_kpi == "Munchie Cookies Analysis":
     col2.metric("🥠 Loaded", f"{int(munchie_loaded):,}")
 
     chart_type = st.selectbox("Choose chart type", ["Bar Chart", "Pie Chart", "Donut Chart"], key="munchie_chart")
-
     if chart_type == "Bar Chart":
         fig = go.Figure(data=[
             go.Bar(name="Ordered", x=["Munchie Cookies"], y=[munchie_ordered], marker_color="blue"),

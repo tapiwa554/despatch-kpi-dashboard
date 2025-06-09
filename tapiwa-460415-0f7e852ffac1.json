@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "tapiwa-460415",
+  "private_key_id": "0f7e852ffac1258f5f93d288983c3ac13a218c0c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCyojlNt2hminoZ\nTKe5sUazUG2lYkY+mAUcgorHrNHEk+tLajhJcAPNDpO6G0duXeya3A9zXtR+YYhm\neyTh7TT5zdTtGWRuwiC8wO1VsSTwFiNxjxPBP3vbNAr1fdEBwsdgz7pfvlUyMzzr\ndKOgZXw0fQYElW6EvS2Z7It+B1oPFKVzGuSFMnQc/8QbU2FJ7T3WR0oCaCDT2uC8\nbmOEXI6laGeB0Hvo1/19GD9/GJ3gLHAL4hiPc1o64toYPAYTPvQSqZjf0B3ZFcrC\ny8mjlJP3uohoHMszn4BtKhPFIh2j15QqTK2eWu4lDH4GI9eyLFazGyZTQE6xJLEf\nwkEw/+PnAgMBAAECggEAO1gBSXxAxrACWB1LKzllj3SMuICpbWn7aLlFeYhEN9Yc\nOPWUtXDtElZhZVZiqJuzWs74ow9B8KpeMg1+9z9idgqXTh09bD45ufst3WX4K3pv\nU+6AVZbNgskLSvr9UGRw8AySkfQdQYwcFOyu3z5XwOg385XhHV/rolMfFENE+/UE\nEoE//MaWARyz25vG2NLcJhkyocfEK6nPNrxCXf0YO1fIp2TH3oYL2tfRg7wMi6pD\nLxXRbBjsViXyFXSENWBIsKNsxL+qKJkceHiEaA3OErsrxQeWmpsLbJUtatDZdXwQ\nTeOoMP2rNWiTTQZM0NUZ+aDAzrLbWkgSZLENv19CIQKBgQD6j6j51gOmyaPHYO0a\nr9hjI+rs2ISHbv3+Zd2XiEvz7K4B1Qt9azlyR8vYqVdERHili7W3p6+Q/xCEeA6f\nBdbzdBxNZxdRvpb/w8heNaokBTlBMHBN2VENGJ01o98siJFdCSicnjKA1jmsaZQj\n+LczaiWuq/Xpmj5ms9ldoeff4wKBgQC2gt706eWKBm3BFjZF+7+qkiCfohOw3r+w\nnjPw4Qb7ytXpVGC6iU7XlEL9rLll7ycVCC5A/phenvy1WDvGaa3SbBWUXtlDSCAy\nfzagzhJv8OQosNaKlxm/84OsOmW+MIPmxjoNp1aEUV2myvbGyHBCq74s1KJeidrO\nhyX0uJCjLQKBgDilAa55k5nBPCV25COEXYcMN7ATwuJbVVCN9uqrBYC/oRcI8vAH\nrZUIZi01G2VzlVLXot1CK468Gx/XhHau+0lOlpdpFvyD+d8Yg9PIjg5Wn/r82GbB\nGnG7fs8BnRKUTUibKXM+0GwQAjnYJIV9VO1qsdorRgzpsfHF9v4T/DfBAoGAA0wZ\n+xK+st+q2/IqyNjjfZFmRXwIHwnnLKmvBosKNUJU2wJLPRN9+ScUjsCwGMdZTWf4\nbfQrjIoSxrPxYIRIP6T0Ptn30t9atY7WzdDrRFp1xMZtGdPhAzbDCjmD3QvDVkf+\nhIChb4KIzpqcGrtES/AOX4D37f1PlquaY/Fxq4ECgYEA7Vs5rv2dTTFnCtGlJ3Fi\nm06lsAvczcajE0uEyPzNdFZqel1gmIHTTfovfx8yl0y4TS66PdDoTRUIvW1+u+Lm\ne/MNs5k5AR8l889geVCPS86aFRSNcTB+ilymDszK3XvKzJNvsI8x+U67+djxpR4I\nvNsG5zfxBBzGeeiv3StzMqE=\n-----END PRIVATE KEY-----\n",
+  "client_email": "tapiwamhondiwa@tapiwa-460415.iam.gserviceaccount.com",
+  "client_id": "104387661124086242836",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/tapiwamhondiwa%40tapiwa-460415.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
