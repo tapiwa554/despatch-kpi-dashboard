@@ -7,29 +7,22 @@ import plotly.graph_objects as go
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Despatch KPI Dashboard", layout="wide")
 
-# --- CUSTOM STYLING: White background, dark text, white sidebar text ---
+# --- CUSTOM STYLING ---
 st.markdown("""
     <style>
-        /* MAIN APP BACKGROUND - white */
         .stApp {
             background-color: white !important;
             color: black !important;
         }
-
-        /* SIDEBAR BACKGROUND and TEXT */
         [data-testid="stSidebar"] {
-            background-color: rgba(0, 0, 0, 0.8);  /* dark sidebar */
+            background-color: rgba(0, 0, 0, 0.8);
         }
         [data-testid="stSidebar"] * {
-            color: white !important;  /* white text in sidebar */
+            color: white !important;
         }
-
-        /* OVERRIDE METRIC TEXT COLORS */
         div[data-testid="metric-container"] {
             color: black !important;
         }
-
-        /* Ensure headers and chart titles in main area are black */
         h1, h2, h3, h4, h5, h6, p, span, div {
             color: black !important;
         }
@@ -39,7 +32,7 @@ st.markdown("""
 # --- GOOGLE SHEETS AUTH ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name(
-    "/workspaces/despatch-kpi/tapiwa-460415-0f7e852ffac1.json",  # ✅ Update to your actual path
+    r"C:/Program Files/JetBrains/PyCharm Community Edition 2025.1/tapiwa-460415-1ee99eceac60.json",  # ✅ NEW path
     scope
 )
 client = gspread.authorize(creds)
@@ -53,11 +46,11 @@ loadings_df = pd.DataFrame(spreadsheet.worksheet("LOADED").get_all_records())
 orders_df.columns = [col.strip().upper().replace(" ", "_") for col in orders_df.columns]
 loadings_df.columns = [col.strip().upper().replace(" ", "_") for col in loadings_df.columns]
 
-# --- FIX DATE FORMAT ---
+# --- DATE FIX ---
 orders_df["DATE"] = pd.to_datetime(orders_df["DATE"], format="%d-%b-%y", errors="coerce")
 loadings_df["DATE"] = pd.to_datetime(loadings_df["DATE"], format="%d-%b-%y", errors="coerce")
 
-# --- MUNCHIE NUMERIC ---
+# --- MUNCHIE COOKIES NUMERIC ---
 orders_df["MUNCHIE_COOKIES"] = pd.to_numeric(orders_df.get("MUNCHIE_COOKIES", 0), errors="coerce").fillna(0)
 loadings_df["MUNCHIE_COOKIES"] = pd.to_numeric(loadings_df.get("MUNCHIE_COOKIES", 0), errors="coerce").fillna(0)
 
@@ -82,7 +75,7 @@ else:
 orders_df = orders_df[(orders_df["DATE"] >= start_date) & (orders_df["DATE"] <= end_date) & (orders_df["ROUTE"].isin(routes))]
 loadings_df = loadings_df[(loadings_df["DATE"] >= start_date) & (loadings_df["DATE"] <= end_date) & (loadings_df["ROUTE"].isin(routes))]
 
-# --- KPI CALC ---
+# --- KPI CALCULATIONS ---
 loaf_columns = ["BI_WHITE", "BI_BROWN", "BI_WHOLE_WHEAT", "MR_CHINGWA", "MRS_CHINGWA", "DR_CHINGWA"]
 for col in loaf_columns:
     loadings_df[col] = pd.to_numeric(loadings_df[col], errors="coerce").fillna(0)
@@ -179,3 +172,4 @@ elif selected_kpi == "Munchie Cookies Analysis":
         st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("✅ Powered by Google Sheets + Streamlit")
+
